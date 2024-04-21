@@ -96,4 +96,4 @@ def play():
         return jsonify({'error': 'Invalid move'}), 400
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8080)
+    app.run(debug=True, host='http://52.200.231.173', port=8080)
