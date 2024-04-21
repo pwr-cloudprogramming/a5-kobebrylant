@@ -60,7 +60,7 @@ export default {
     async fetchGameState() {
       if (!this.gameId) return;
       try {
-        const response = await axios.get(`http://localhost:8080/game/${this.gameId}`);
+        const response = await axios.get(`http://52.200.231.173:8080/game/${this.gameId}`);
         this.board = response.data.board;
         this.currentPlayer = response.data.usernames[response.data.currentPlayer];
         this.currentSign = response.data.currentPlayer === 'X' ? 'X' : 'O';
@@ -79,7 +79,7 @@ export default {
     },
     async createGame() {
       try {
-        const response = await axios.post('http://localhost:8080/start', {
+        const response = await axios.post('http://52.200.231.173:8080/start', {
           username: this.username
         });
         this.gameId = response.data.game_id;
@@ -91,7 +91,7 @@ export default {
     async joinGame()
     {
       try {
-        await axios.post('http://localhost:8080/join', {
+        await axios.post('http://52.200.231.173:8080/join', {
           game_id: this.joiningGameId,
           username: this.username
         });
@@ -105,7 +105,7 @@ export default {
     async makeMove(index) {
       if (this.username === this.currentPlayer && !this.board[index] && !this.winner) {
         try {
-          const response = await axios.post('http://localhost:8080/play', {
+          const response = await axios.post('http://52.200.231.173:8080/play', {
             game_id: this.gameId,
             move: index,
             username: this.username,
