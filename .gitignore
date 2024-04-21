@@ -1,1 +1,6 @@
-# Remember to add any unnecessary folders and files here
+backend/src/__pycache__/app.cpython-312.pyc
+.idea/.gitignore
+.idea/a1-kobebrylant.iml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/inspectionProfiles/Project_Default.xml
