@@ -60,7 +60,7 @@ export default {
   methods: {
     async fetchEC2IP() {
       try {
-        const { data } = await axios.get('/ec2-metadata');
+        const { data } = await axios.get('http://localhost:8080/ec2-metadata');
         console.log('EC2 IP:', data.ip_address);
         this.apiUrl = `http://${data.ip_address}:8080`;
         console.log('API URL set to:', this.apiUrl);
