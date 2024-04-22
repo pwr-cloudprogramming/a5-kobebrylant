@@ -67,7 +67,7 @@ export default {
       } catch (error) {
         console.error('Failed to fetch EC2 IP:', error);
       }
-    }
+    },
 
     async fetchGameState() {
       if (!this.gameId) return;
