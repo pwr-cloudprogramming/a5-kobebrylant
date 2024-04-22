@@ -58,17 +58,6 @@ export default {
     };
   },
   methods: {
-    async fetchEC2IP() {
-      try {
-        const { data } = await axios.get(`${this.apiUrl}/ec2-metadata`);
-        console.log('EC2 IP:', data.PublicIPv4);
-        this.apiUrl = `http://${data.PublicIPv4}:8080`;
-        console.log('API URL set to:', this.apiUrl);
-      } catch (error) {
-        console.error('Failed to fetch EC2 IP:', error);
-      }
-    },
-
     async fetchGameState() {
       if (!this.gameId) return;
       try {
@@ -153,7 +142,6 @@ export default {
     },
   },
   mounted() {
-    this.fetchEC2IP();
     this.fetchGameState();
     this.gameStateInterval = setInterval(this.fetchGameState, 1000);
   },
