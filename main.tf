@@ -29,6 +29,7 @@ resource "aws_subnet" "tictactoe_subnet" {
   }
 }
 
+
 resource "aws_internet_gateway" "tictactoe_igw" {
   vpc_id = aws_vpc.tictactoe_vpc.id
   tags = {
@@ -88,24 +89,17 @@ resource "aws_security_group" "tictactoe_sg" {
     Name = "TicTacToeSG"
   }
 }
+
 resource "aws_instance" "tictactoe_instance" {
   ami           = "ami-080e1f13689e07408"
   instance_type = "t2.micro"
+  key_name = "vockey"
   subnet_id     = aws_subnet.tictactoe_subnet.id
   associate_public_ip_address = "true"
-  security_groups = [aws_security_group.tictactoe_sg.name]
-
-  user_data = <<-EOF
-                #!/bin/bash
-                sudo apt-get update
-                sudo apt-get install -y docker.io
-                sudo systemctl start docker
-                sudo systemctl enable docker
-                git clone https://github.com/pwr-cloudprogramming/a5-kobebrylant.git
-                cd a5-kobebrylant
-                docker compose up --build
-                EOF
-
+  vpc_security_group_ids = [aws_security_group.tictactoe_sg.id]
+  
+  user_data = file("${path.module}/user-data.sh")
+                
   tags = {
     Name = "TicTacToeInstance"
   }
