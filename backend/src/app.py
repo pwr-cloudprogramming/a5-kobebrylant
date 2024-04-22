@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import random
+import subprocess
 
 app = Flask(__name__)
 CORS(app)
@@ -94,6 +95,43 @@ def play():
 
     else:
         return jsonify({'error': 'Invalid move'}), 400
+
+def fetch_ec2_metadata():
+    API_URL = "http://169.254.169.254/latest/api"
+    # Getting the token
+    token = subprocess.run(
+        ['curl', '-X', 'PUT', f"{API_URL}/token", '-H', "X-aws-ec2-metadata-token-ttl-seconds: 600"],
+        capture_output=True, text=True
+    ).stdout.strip()
+
+    METADATA_URL = "http://169.254.169.254/latest/meta-data"
+    headers = {"X-aws-ec2-metadata-token": token}
+
+    # Fetching each metadata field
+    def fetch_metadata(field):
+        result = subprocess.run(
+            ['curl', '-H', f"X-aws-ec2-metadata-token: {token}", '-s', f"{METADATA_URL}/{field}"],
+            capture_output=True, text=True
+        ).stdout.strip()
+        return result
+
+    metadata = {
+        'AvailabilityZone': fetch_metadata('placement/availability-zone'),
+        'PublicIPv4': fetch_metadata('public-ipv4'),
+        'Interface': fetch_metadata('network/interfaces/macs/').splitlines()[0],
+    }
+    metadata['SubnetID'] = fetch_metadata(f"network/interfaces/macs/{metadata['Interface']}/subnet-id")
+    metadata['VPCID'] = fetch_metadata(f"network/interfaces/macs/{metadata['Interface']}/vpc-id")
+
+    return metadata
+
+@app.route('/ec2-metadata')
+def ec2_metadata():
+    try:
+        metadata = fetch_ec2_metadata()
+        return jsonify(metadata)
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)

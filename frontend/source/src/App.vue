@@ -54,13 +54,23 @@ export default {
       currentSign: 'X',
       hoverIndex: null,
       bothPlayersJoined: false,
+      apiUrl: 'http://localhost:8080'
     };
   },
   methods: {
+    async fetchEC2IP() {
+      try {
+        const { data } = await axios.get('/api/ec2-ip');
+        this.apiUrl = `http://${data.ip_address}:8080`;
+        console.log('API URL set to:', this.apiUrl);
+      } catch (error) {
+        console.error('Failed to fetch EC2 IP:', error);
+      }
+    },
     async fetchGameState() {
       if (!this.gameId) return;
       try {
-        const response = await axios.get(`http://52.204.175.67:8080/game/${this.gameId}`);
+        const response = await axios.get(`${this.apiUrl}/game/${this.gameId}`);
         this.board = response.data.board;
         this.currentPlayer = response.data.usernames[response.data.currentPlayer];
         this.currentSign = response.data.currentPlayer === 'X' ? 'X' : 'O';
@@ -79,7 +89,7 @@ export default {
     },
     async createGame() {
       try {
-        const response = await axios.post('http://52.204.175.67:8080/start', {
+        const response = await axios.post(`${this.apiUrl}/start`, {
           username: this.username
         });
         this.gameId = response.data.game_id;
@@ -91,7 +101,7 @@ export default {
     async joinGame()
     {
       try {
-        await axios.post('http://52.204.175.67:8080/join', {
+        await axios.post(`${this.apiUrl}/join`, {
           game_id: this.joiningGameId,
           username: this.username
         });
@@ -105,7 +115,7 @@ export default {
     async makeMove(index) {
       if (this.username === this.currentPlayer && !this.board[index] && !this.winner) {
         try {
-          const response = await axios.post('http://52.204.175.67:8080/play', {
+          const response = await axios.post(`${this.apiUrl}/play`, {
             game_id: this.gameId,
             move: index,
             username: this.username,
@@ -141,6 +151,7 @@ export default {
     },
   },
   mounted() {
+    this.fetchEC2IP();
     this.fetchGameState();
     this.gameStateInterval = setInterval(this.fetchGameState, 1000);
   },
