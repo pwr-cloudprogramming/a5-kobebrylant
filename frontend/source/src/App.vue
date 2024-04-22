@@ -60,9 +60,9 @@ export default {
   methods: {
     async fetchEC2IP() {
       try {
-        const { data } = await axios.get('/ec2-metadata');  // Direct call without /api
-        console.log('EC2 IP:', data.ip_address);
-        this.apiUrl = `http://${data.ip_address}:8080`;
+        const { data } = await axios.get(`${this.apiUrl}/ec2-metadata`);
+        console.log('EC2 IP:', data.PublicIPv4);
+        this.apiUrl = `http://${data.PublicIPv4}:8080`;
         console.log('API URL set to:', this.apiUrl);
       } catch (error) {
         console.error('Failed to fetch EC2 IP:', error);
