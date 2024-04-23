@@ -143,7 +143,7 @@ export default {
   },
   mounted() {
     this.fetchGameState();
-    this.gameStateInterval = setInterval(this.fetchGameState, 1000);
+    this.gameStateInterval = setInterval(this.fetchGameState, 200);
   },
 
   beforeUnmount() {
