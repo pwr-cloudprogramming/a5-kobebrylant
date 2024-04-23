@@ -1,4 +1,4 @@
-# Jane Doe - Terraform, EC2, TicTacToe report
+# Wojciech Skuła - Terraform, EC2, TicTacToe report
 
 - Course: *Cloud programming*
 - Group: Group 4 
