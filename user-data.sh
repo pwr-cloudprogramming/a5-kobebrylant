@@ -30,7 +30,7 @@ echo "$IP_V4" > /tmp/ec2_ip_address.txt
 # Export the IP address as an environment variable
 export VUE_APP_API_URL="http://$IP_V4:8080"
 
-git clone https://<PERSONAL_ACCESS_TOKEN>:x-oauth-basic@github.com/pwr-cloudprogramming/a5-kobebrylant.git > /tmp/git_clone.log 2>&1
+git clone https://github.com/pwr-cloudprogramming/a5-kobebrylant.git > /tmp/git_clone.log 2>&1
 wait
 cd a5-kobebrylant/
 wait
