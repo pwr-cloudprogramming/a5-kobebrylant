@@ -1,6 +1,11 @@
 <template>
   <div class="app">
-    <div v-if="!gameId" class="username">
+    <div v-if="!accessToken" class="auth-forms">
+      <register-component @registered="handleRegistration" />
+      <login-component @login="handleLogin" />
+    </div>
+
+    <div v-if="accessToken && !gameId" class="username">
       <h1>Tic Tac Toe</h1>
       <input v-model="username" class="input" placeholder="Enter your username" />
       <div @click="createGame" class="start-button">Create Game</div>
@@ -38,13 +43,18 @@
 </template>
 
 <script>
-
-
 import axios from 'axios';
+import RegisterComponent from './components/Register.vue';
+import LoginComponent from './components/Login.vue';
 
 export default {
+  components: {
+    'register-component': RegisterComponent,
+    'login-component': LoginComponent
+  },
   data() {
     return {
+      accessToken: localStorage.getItem('accessToken') || null,
       username: '',
       gameId: null,
       joiningGameId: '',
@@ -58,10 +68,20 @@ export default {
     };
   },
   methods: {
+    handleLogin(token) {
+      this.accessToken = token;
+    },
+    handleRegistration() {
+      alert('Registration successful! Please login to continue.');
+    },
     async fetchGameState() {
       if (!this.gameId) return;
       try {
-        const response = await axios.get(`${this.apiUrl}/game/${this.gameId}`);
+        const response = await axios.get(`${this.apiUrl}/game/${this.gameId}`, {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`
+          }
+        });
         this.board = response.data.board;
         this.currentPlayer = response.data.usernames[response.data.currentPlayer];
         this.currentSign = response.data.currentPlayer === 'X' ? 'X' : 'O';
@@ -82,6 +102,10 @@ export default {
       try {
         const response = await axios.post(`${this.apiUrl}/start`, {
           username: this.username
+        }, {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`
+          }
         });
         this.gameId = response.data.game_id;
         this.fetchGameState();
@@ -89,20 +113,22 @@ export default {
         console.error(error);
       }
     },
-    async joinGame()
-    {
+    async joinGame() {
       try {
         await axios.post(`${this.apiUrl}/join`, {
           game_id: this.joiningGameId,
           username: this.username
+        }, {
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`
+          }
         });
         this.gameId = this.joiningGameId;
         this.fetchGameState();
       } catch (error) {
         console.error(error);
       }
-    }
-,
+    },
     async makeMove(index) {
       if (this.username === this.currentPlayer && !this.board[index] && !this.winner) {
         try {
@@ -110,6 +136,10 @@ export default {
             game_id: this.gameId,
             move: index,
             username: this.username,
+          }, {
+            headers: {
+              Authorization: `Bearer ${this.accessToken}`
+            }
           });
           this.board = response.data.board;
           this.winner = response.data.winner;
@@ -151,10 +181,8 @@ export default {
       clearInterval(this.gameStateInterval);
     }
   },
-
 };
 </script>
-
 
 <style>
 .html, body {
@@ -163,6 +191,7 @@ export default {
   font-family: Arial, sans-serif;
   color: #D0BDF4;
 }
+
 .app {
   background-color: #494D5F;
   display: flex;
@@ -172,7 +201,13 @@ export default {
   margin: 0;
   width: 100vw;
   height: 100vh;
+}
 
+.auth-forms {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
 }
 
 .username {
@@ -183,8 +218,8 @@ export default {
   width: 15vw;
   justify-content: center;
   align-items: center;
-
 }
+
 .board {
   display: grid;
   grid-template-columns: repeat(3, 100px);
@@ -218,6 +253,7 @@ export default {
   align-items: center;
   gap: 10px;
 }
+
 .game {
   display: flex;
   flex-direction: column;
@@ -225,6 +261,7 @@ export default {
   margin-top: 30px;
   margin-bottom: 30px;
 }
+
 .input {
   width: 100%;
   padding: 10px;
@@ -235,10 +272,11 @@ export default {
   color: #494D5F;
   width: 100%;
 }
+
 .start-button {
   width: 15vw;
   padding: 10px;
-  background-color:#A0D2EB;
+  background-color: #A0D2EB;
   border-radius: 10px;
   text-align: center;
   color: #494D5F;
